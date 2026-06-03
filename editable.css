@@ -1,0 +1,77 @@
+/* Camada de edição visual.
+   Este arquivo é carregado depois de styles.css para facilitar ajustes via extensão/editor de CSS. */
+
+:root {
+  --edit-bg-dark: #0f0f0f;
+  --edit-bg-cream: #f5e6d3;
+  --edit-accent: #ff7a30;
+  --edit-text-dark: #161514;
+  --edit-text-muted: #6c625a;
+  --edit-slide-radius: 0px;
+}
+
+.btn.primary {
+  background: var(--edit-accent);
+}
+
+.eyebrow {
+  color: var(--edit-accent);
+}
+
+/* Slides */
+.slide {
+  border-radius: var(--edit-slide-radius);
+}
+
+.theme-dark {
+  background-color: var(--edit-bg-dark);
+}
+
+.theme-cream,
+.theme-light {
+  color: var(--edit-text-dark);
+}
+
+.theme-cream p,
+.theme-light p {
+  color: var(--edit-text-muted);
+}
+
+/* Hero */
+.hero-slide h1 {
+  max-width: 840px;
+}
+
+@media (min-width: 721px) {
+  .hero-slide h1 {
+    font-size: 65px;
+  }
+}
+
+.hero-bg img {
+  opacity: .58;
+}
+
+/* Mockups de celular */
+.phone {
+  border-color: rgba(255, 122, 48, .32);
+}
+
+.phone-screen {
+  background: #111111;
+}
+
+/* Equipe de agentes */
+.agent-card {
+  border-color: rgba(255, 122, 48, .18);
+}
+
+.agent-card img {
+  filter: saturate(1.04) contrast(1.02);
+}
+
+/* Use este bloco para ajustes temporários rápidos pela extensão.
+   Exemplo:
+   .slide { min-height: 820px; }
+   .hero-slide h1 { font-size: 62px; }
+*/

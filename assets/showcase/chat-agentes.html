@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentes — MediaGrowth</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agents.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+
+<!-- ═══ HEADER ═════════════════════════════════════════ -->
+<header class="header">
+  <a href="dashboard.html" class="btn-back">← Dashboard</a>
+
+
+
+  <nav class="header__nav">
+    <button class="tab-btn" data-tab="chat" title="Chat IA com modelos OpenRouter, skills, agentes, anexos">
+      <span class="tab-icon">💬</span>
+      <span class="tab-label">Chat</span>
+    </button>
+    <button class="tab-btn active" data-tab="agentes">
+      <span class="tab-icon">👥</span>
+      <span class="tab-label">Agentes</span>
+    </button>
+    <button class="tab-btn" data-tab="fluxos">
+      <span class="tab-icon">🔀</span>
+      <span class="tab-label">Fluxos</span>
+    </button>
+    <button class="tab-btn" data-tab="banco">
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">Skills</span>
+    </button>
+    <button class="tab-btn" data-tab="cerebro">
+      <span class="tab-icon">🧠</span>
+      <span class="tab-label">Cérebro</span>
+    </button>
+    <button class="tab-btn" data-tab="conhecimento" title="Banco de conhecimento pessoal — curado pela Iris">
+      <span class="tab-icon">🔮</span>
+      <span class="tab-label">Conhecimento</span>
+    </button>
+    <button class="tab-btn" data-tab="consumo">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Consumo</span>
+    </button>
+    <button class="tab-btn" data-tab="todo">
+      <span class="tab-icon">✅</span>
+      <span class="tab-label">To-do</span>
+    </button>
+    <button class="tab-btn" data-tab="log">
+      <span class="tab-icon">📜</span>
+      <span class="tab-label">Log</span>
+    </button>
+    <button class="tab-btn" data-tab="pricing">
+      <span class="tab-icon">💰</span>
+      <span class="tab-label">API Pricing</span>
+    </button>
+    <button class="tab-btn" data-tab="outros-custos">
+      <span class="tab-icon">🧮</span>
+      <span class="tab-label">Outros Custos</span>
+    </button>
+  </nav>
+
+  <div class="header__actions">
+    <span class="badge-count" id="badgeTotal">14 agentes</span>
+    <button class="btn-refresh btn-refresh-all" id="btnRefreshAll" title="Re-escanear todos os .md de .claude/skills e .claude/agents (precisa do serve.py rodando)">
+      <span class="refresh-icon">↻</span>
+      <span>Atualizar tudo</span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══ MAIN ════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ─── ABA: CHAT (iframe pra isolar CSS/JS do chat.html) ───── -->
+  <section id="tab-chat" class="tab-content tab-content--full">
+    <iframe id="chatFrame" class="chat-iframe" title="Chat IA"
+            style="width:100%;height:100%;border:0;display:block;background:#0a0a0c"
+            allow="clipboard-write; clipboard-read"></iframe>
+  </section>
+
+  <!-- ─── ABA: AGENTES ─────────────────────────────────── -->
+  <section id="tab-agentes" class="tab-content active">
+
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar por nome, cargo ou descrição...">
+      </div>
+
+      <select class="filter-select" id="filterStatus">
+        <option value="todos">Todos os status</option>
+        <option value="futuro">Ações Futuras</option>
+        <option value="desenvolvimento">Em Desenvolvimento</option>
+        <option value="andamento">Em Andamento</option>
+        <option value="concluido">Concluído</option>
+        <option value="finalizado">Finalizado</option>
+        <option value="pausado">Pausado</option>
+      </select>
+
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="grid" title="Visualização em grade">⊞</button>
+        <button class="view-btn" data-view="list" title="Visualização em lista">☰</button>
+      </div>
+    </div>
+
+    <div class="agents-grid" id="agentsGrid">
+      <!-- Renderizado por JS -->
+    </div>
+  </section>
+
+  <!-- ─── ABA: FLUXOS ──────────────────────────────────── -->
+  <section id="tab-fluxos" class="tab-content">
+    <div class="flow-header">
+      <h2>🔀 Fluxos</h2>
+      <p>Monte fluxos clicando no <strong>+</strong> de cada quadrado pra adicionar agente, skill, documento ou arquivo local. Salva no Firebase e em <code>.claude/flows/*.json</code>.</p>
+    </div>
+
+    <div class="flows-toolbar">
+      <button class="btn-back" id="btnBackToList" hidden title="Voltar pra lista">
+        <span>← Voltar</span>
+      </button>
+      <input type="text" class="form-input" id="flowNameInput" placeholder="Nome do fluxo" hidden style="max-width:260px">
+      <button class="btn-refresh" id="btnSaveFlow" hidden title="Forçar save manual (auto-save já roda em qualquer alteração)">
+        <span>💾 Salvar agora</span>
+      </button>
+      <button class="btn-refresh" id="btnDeleteFlow" hidden title="Excluir fluxo atual">
+        <span>🗑️ Excluir</span>
+      </button>
+      <span class="badge-count" id="flowMeta">—</span>
+    </div>
+
+    <!-- LISTA: sidebar de pastas + grid de fluxos -->
+    <div class="flows-layout" id="flowsLayout">
+      <aside class="flows-sidebar">
+        <div class="flows-sidebar__head">
+          <button class="btn-save flows-sidebar__btn" id="btnNewFolder" type="button" title="Criar nova pasta">＋ Pasta</button>
+          <button class="btn-refresh flows-sidebar__btn" id="btnApplyTemplates" type="button" title="Instalar setores e processos pré-prontos">📦 Templates</button>
+        </div>
+        <input type="text" class="form-input flows-sidebar__search" id="folderSearch" placeholder="🔎 Buscar pasta...">
+        <div class="flows-folder-tree" id="flowsFolderTree">
+          <!-- Renderizado por flows.js -->
+        </div>
+      </aside>
+      <div class="flows-list-pane">
+        <div class="flows-list-pane__header" id="flowsListHeader">
+          <span class="flows-list-pane__icon" id="flowsListPaneIcon">📌</span>
+          <span class="flows-list-pane__title" id="flowsListPaneTitle">Todas</span>
+          <span class="flows-list-pane__count" id="flowsListPaneCount">— fluxos</span>
+          <span class="flows-list-pane__desc" id="flowsListPaneDesc"></span>
+        </div>
+        <div class="flows-list" id="flowsList">
+          <!-- Renderizado por flows.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Context menu (⋯) genérico — usado por cards e pastas -->
+    <div class="flow-ctx-menu" id="flowCtxMenu" hidden>
+      <!-- Itens injetados dinamicamente -->
+    </div>
+
+    <!-- EDIÇÃO: grid 11×N do fluxo aberto -->
+    <div class="flows-grid-wrap" id="flowsGridWrap" hidden>
+      <div class="flows-canvas">
+        <svg class="flow-edges" id="flowEdgesSvg" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="flowArrow" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto">
+              <path d="M0,0 L10,5 L0,10 Z" fill="currentColor"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="flows-grid" id="flowsGrid">
+          <!-- Renderizado por flows.js -->
+        </div>
+      </div>
+      <div class="flows-grid-actions">
+        <button class="btn-refresh" id="btnAddRows" hidden title="Adicionar 11 linhas ao grid">
+          <span>＋ 11 linhas</span>
+        </button>
+        <button class="btn-refresh" id="btnExportFlow" hidden title="Baixar .md completo (skills + agentes + arquivos conectados) + imagem PNG do fluxo">
+          <span>⬇ Baixar fluxo (.md + .png)</span>
+        </button>
+        <span class="flow-hint" id="flowConnectHint" hidden>🔗 Modo conexão — clique no quadrado de destino · Esc cancela</span>
+        <span class="flow-hint" id="flowExportHint" hidden>⏳ Gerando export…</span>
+      </div>
+    </div>
+
+    <!-- Banco de texto: explicação do fluxo em texto corrido -->
+    <div class="flow-description-wrap" id="flowDescriptionWrap" hidden>
+      <div class="flow-description-wrap__head">
+        <label class="flow-description-wrap__label" for="flowDescriptionInput">📖 Como esse fluxo funciona</label>
+        <span class="flow-description-wrap__hint" id="flowDescriptionHint">Auto-save</span>
+      </div>
+      <textarea
+        class="flow-description-wrap__input"
+        id="flowDescriptionInput"
+        placeholder="Explique em texto corrido o que esse fluxo faz, quem dispara, quais condições, o que entra, o que sai no final, exceções, regras de negócio… Pode usar vários parágrafos."
+        rows="20"
+        spellcheck="true"></textarea>
+    </div>
+
+    <!-- Tooltip de nó (skills do agente / conteúdo da skill) -->
+    <div class="flow-node-tooltip" id="flowNodeTooltip" hidden>
+      <div class="flow-node-tooltip__header">
+        <span id="flowNodeTooltipTitle" contenteditable="true" spellcheck="false" title="Clique pra renomear · Enter salva · Esc cancela">—</span>
+        <button id="flowNodeTooltipClose" type="button" title="Fechar">✕</button>
+      </div>
+      <div class="flow-node-tooltip__body markdown-body" id="flowNodeTooltipBody"></div>
+    </div>
+
+    <!-- Popover do picker (catálogo de tipos) -->
+    <div class="flow-picker" id="flowPicker" hidden>
+      <div class="flow-picker__head">
+        <button class="flow-picker__back" id="flowPickerBack" type="button" hidden>← Voltar</button>
+        <span class="flow-picker__title" id="flowPickerTitle">Adicionar bloco</span>
+      </div>
+      <input type="text" class="form-input" id="flowPickerSearch" placeholder="Buscar (agente, skill, trigger, output...)">
+      <div class="flow-picker__list" id="flowPickerList"></div>
+      <div class="flow-picker__footer">
+        <button class="btn-cancel" id="flowPickerCancel">Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: CÉREBRO ─────────────────────────────────── -->
+  <section id="tab-cerebro" class="tab-content">
+    <div class="flow-header">
+      <h2>🧠 Cérebro da Operação</h2>
+      <p>Os arquivos centrais que fazem toda a engrenagem rodar — agrupados por área. Clique em qualquer um pra visualizar e editar; salva direto no disco quando o <code>serve.py</code> está rodando.</p>
+    </div>
+
+    <div class="cerebro-toolbar">
+      <div class="cerebro-view-toggle" id="cerebroViewToggle">
+        <button data-view="brain" class="active" title="Cérebro 3D — clique nas regiões"><span>🧠</span><span>Cérebro 3D</span></button>
+        <button data-view="list" title="Lista linear com busca"><span>📄</span><span>Lista</span></button>
+        <button data-view="conexoes" title="Conexões — todos os arquivos do clientes_convidados, conectados, com filtros"><span>🕸️</span><span>Conexões</span></button>
+      </div>
+      <input type="text" class="form-input" id="cerebroSearch" placeholder="🔎 Buscar arquivo, categoria ou palavra...">
+      <span class="badge-count" id="cerebroBadge">— itens</span>
+      <button class="btn-refresh" id="cerebroRefresh" title="Re-escanear arquivos do cérebro">
+        <span class="refresh-icon">↻</span>
+        <span>Atualizar</span>
+      </button>
+    </div>
+
+    <div class="cerebro-layout">
+      <!-- VIEW BRAIN — 3D Three.js -->
+      <div class="cerebro-brain" id="cerebroBrain">
+        <div class="cerebro-brain__canvas-wrap" id="cerebroBrainCanvasWrap">
+          <canvas id="cerebroBrainCanvas"></canvas>
+          <div class="cerebro-brain__hint" id="cerebroBrainHint">
+            <span>✨ Arraste para girar · Scroll para zoom · Clique numa região</span>
+          </div>
+          <div class="cerebro-brain__tooltip" id="cerebroBrainTooltip" hidden>
+            <div class="cerebro-brain__tooltip-icon">🧠</div>
+            <div class="cerebro-brain__tooltip-body">
+              <div class="cerebro-brain__tooltip-title">—</div>
+              <div class="cerebro-brain__tooltip-meta">—</div>
+            </div>
+          </div>
+          <div class="cerebro-brain__legend" id="cerebroBrainLegend"></div>
+        </div>
+      </div>
+
+      <!-- VIEW LIST — sidebar tradicional (oculta por padrão) -->
+      <aside class="cerebro-sidebar" id="cerebroSidebar" hidden>
+        <div class="cerebro-loading">Carregando cérebro...</div>
+      </aside>
+
+      <div class="cerebro-content" id="cerebroContent">
+        <div class="cerebro-empty">
+          <div class="cerebro-empty__icon">🧠</div>
+          <h3>Selecione uma região do cérebro</h3>
+          <p>Clique em qualquer lobo do cérebro 3D pra ver os arquivos daquela área. Use o toggle acima pra alternar entre cérebro e lista.</p>
+        </div>
+      </div>
+
+      <!-- VIEW CONEXOES — grafo 3D filtrável de TODOS os arquivos -->
+      <div class="conexoes-wrap" id="conexoesWrap" hidden>
+        <aside class="conexoes-filters" id="conexoesFilters">
+          <header class="conexoes-filters__head">
+            <h3>Filtros</h3>
+            <button class="conexoes-filters__reset" id="conexoesResetBtn" title="Limpa todos os filtros">Limpar</button>
+          </header>
+
+          <div class="conexoes-filters__group">
+            <label>🔎 Busca</label>
+            <input type="text" id="conexoesSearch" class="form-input" placeholder="nome, path, palavra...">
+          </div>
+
+          <div class="conexoes-filters__group" id="conexoesTypeGroup">
+            <label>Tipo de arquivo</label>
+            <div class="conexoes-chips" id="conexoesTypeChips"></div>
+          </div>
+
+          <div class="conexoes-filters__group" id="conexoesAgentGroup">
+            <label>Agente</label>
+            <div class="conexoes-chips" id="conexoesAgentChips"></div>
+          </div>
+
+          <div class="conexoes-filters__group" id="conexoesClientGroup">
+            <label>Cliente</label>
+            <div class="conexoes-chips conexoes-chips--vertical" id="conexoesClientChips"></div>
+          </div>
+
+          <div class="conexoes-filters__group">
+            <label>Tipo de ligação</label>
+            <div class="conexoes-chips" id="conexoesEdgeKindChips"></div>
+          </div>
+
+          <div class="conexoes-filters__stats" id="conexoesStats">— nenhum filtro ativo —</div>
+        </aside>
+
+        <div class="conexoes-canvas-wrap" id="conexoesCanvasWrap">
+          <canvas id="conexoesCanvas"></canvas>
+
+          <div class="conexoes-empty" id="conexoesEmpty">
+            <div class="conexoes-empty__icon">🕸️</div>
+            <h3>Selecione um filtro pra começar</h3>
+            <p>São <strong id="conexoesTotalNodes">—</strong> arquivos e <strong id="conexoesTotalEdges">—</strong> conexões em <code>clientes_convidados/</code>. Renderizar tudo de uma vez trava o navegador, então comece marcando um agente, cliente ou tipo no painel ao lado. Combine filtros pra reduzir o grafo.</p>
+            <p class="conexoes-empty__hint">Dica: <em>Tipo = skill</em> + <em>Agente = sarah</em> = só as skills da Sarah.</p>
+          </div>
+
+          <div class="conexoes-tooltip" id="conexoesTooltip" hidden>
+            <div class="conexoes-tooltip__icon">📄</div>
+            <div class="conexoes-tooltip__body">
+              <div class="conexoes-tooltip__title">—</div>
+              <div class="conexoes-tooltip__meta">—</div>
+            </div>
+          </div>
+
+          <div class="conexoes-hint">
+            <span>✨ Arraste pra girar · Scroll pra zoom · Clique num nó pra ver conexões</span>
+          </div>
+
+          <div class="conexoes-loader" id="conexoesLoader" hidden>
+            <div class="conexoes-loader__spin"></div>
+            <span>Escaneando arquivos...</span>
+          </div>
+        </div>
+
+        <aside class="conexoes-detail" id="conexoesDetail" hidden>
+          <button class="conexoes-detail__close" id="conexoesDetailClose" title="Fechar">×</button>
+          <header class="conexoes-detail__head">
+            <div class="conexoes-detail__icon">📄</div>
+            <div>
+              <div class="conexoes-detail__title">—</div>
+              <div class="conexoes-detail__path">—</div>
+            </div>
+          </header>
+          <div class="conexoes-detail__meta"></div>
+          <div class="conexoes-detail__section">
+            <h4>Conexões deste arquivo</h4>
+            <ul class="conexoes-detail__list"></ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: CONHECIMENTO (Iris) ─────────────────────── -->
+  <section id="tab-conhecimento" class="tab-content">
+    <div class="conhec-shell">
+
+      <!-- Sidebar de categorias -->
+      <aside class="conhec-sidebar">
+        <div class="conhec-sidebar__head">
+          <div class="conhec-sidebar__title">🔮 Conhecimento</div>
+          <button class="btn-refresh conhec-refresh" id="conhecRefreshBtn" title="Recarregar do disco + Firestore">
+            <span class="refresh-icon">↻</span>
+          </button>
+        </div>
+        <div class="conhec-sidebar__sub">curadoria pessoal · Iris</div>
+
+        <input type="text" id="conhecSearch" class="conhec-search" placeholder="🔎 buscar título, tag, transcrição...">
+
+        <div class="conhec-sidebar__section-label">Categorias</div>
+        <ul class="conhec-cats" id="conhecCats">
+          <!-- li.conhec-cat[data-cat] -->
+        </ul>
+
+        <div class="conhec-sidebar__section-label">Tipo</div>
+        <ul class="conhec-types" id="conhecTypes">
+          <!-- preenchido por JS -->
+        </ul>
+
+        <div class="conhec-sidebar__section-label">Conteúdo</div>
+        <ul class="conhec-content-filters" id="conhecContentFilters">
+          <li class="conhec-cfilter" data-cfilter="has_frameworks">
+            <label><input type="checkbox" data-cfilter="has_frameworks"> 🧠 Tem frameworks</label>
+            <span class="conhec-cat__qtd" data-cfilter-qtd="has_frameworks">0</span>
+          </li>
+          <li class="conhec-cfilter" data-cfilter="has_casos">
+            <label><input type="checkbox" data-cfilter="has_casos"> 📦 Tem casos</label>
+            <span class="conhec-cat__qtd" data-cfilter-qtd="has_casos">0</span>
+          </li>
+          <li class="conhec-cfilter" data-cfilter="has_citacoes">
+            <label><input type="checkbox" data-cfilter="has_citacoes"> 💬 Tem citações</label>
+            <span class="conhec-cat__qtd" data-cfilter-qtd="has_citacoes">0</span>
+          </li>
+        </ul>
+
+        <div class="conhec-sidebar__section-label" id="conhecContextoLabel" hidden>Contexto</div>
+        <ul class="conhec-contextos" id="conhecContextos">
+          <!-- preenchido por JS quando houver contexto_captura -->
+        </ul>
+
+        <div class="conhec-sidebar__section-label" id="conhecTagsLabel" hidden>Tags</div>
+        <ul class="conhec-tags-tree" id="conhecTagsTree">
+          <!-- preenchido por JS — árvore hierárquica -->
+        </ul>
+
+        <div class="conhec-sidebar__footer" id="conhecSyncStatus">—</div>
+      </aside>
+
+      <!-- Conteúdo principal -->
+      <div class="conhec-main">
+        <div class="conhec-toolbar">
+          <div class="conhec-counts" id="conhecCounts">— itens</div>
+          <div class="conhec-tags-cloud" id="conhecActiveTags"></div>
+        </div>
+
+        <div class="conhec-grid" id="conhecGrid">
+          <div class="conhec-empty" id="conhecEmpty">
+            <div class="conhec-empty__icon">🌌</div>
+            <h3>Banco vazio</h3>
+            <p>Mande qualquer link, vídeo, artigo, foto ou ideia no grupo <strong>iris-organiza-conteúdos</strong> no WhatsApp. A Iris vai categorizar e o item aparece aqui.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal de detalhe -->
+    <div class="conhec-modal" id="conhecModal" hidden>
+      <div class="conhec-modal__backdrop" data-close="1"></div>
+      <div class="conhec-modal__panel">
+        <button class="conhec-modal__close" id="conhecModalClose" title="Fechar">×</button>
+        <div class="conhec-modal__body" id="conhecModalBody">
+          <!-- preenchido por JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: CONSUMO ─────────────────────────────────── -->
+  <section id="tab-consumo" class="tab-content">
+    <div class="flow-header">
+      <h2>📊 Consumo · Painel de custos</h2>
+      <p>Tudo registrado em <strong>Outros Custos</strong> + custos por skill da aba <strong>Agentes</strong>, agregado por data, agente, área/tag, modelo e skill. Pra ver onde o dinheiro está indo e o que cortar.</p>
+    </div>
+
+    <!-- Toggle Geral / API OpenRouter -->
+    <div class="consumo-view-toggle">
+      <button class="cvt-btn active" data-cview="geral">📊 Geral (tudo)</button>
+      <button class="cvt-btn" data-cview="api">🌐 API OpenRouter</button>
+    </div>
+
+    <!-- ───── VIEW: API OPENROUTER ───── -->
+    <div id="consumoApiView" class="consumo-api-view" hidden></div>
+
+    <!-- ───── VIEW: GERAL (original) ───── -->
+    <div id="consumoGeralView">
+
+    <!-- ─── Toolbar com filtro de calendário ─── -->
+    <div class="consumo-toolbar">
+      <div class="consumo-date-range">
+        <label class="consumo-date-field">
+          <span class="consumo-date-label">De</span>
+          <input type="date" id="consumoDateFrom">
+        </label>
+        <label class="consumo-date-field">
+          <span class="consumo-date-label">Até</span>
+          <input type="date" id="consumoDateTo">
+        </label>
+      </div>
+      <div class="period-toggle" id="consumoPeriod">
+        <button data-period="today">Hoje</button>
+        <button data-period="7d">7 dias</button>
+        <button data-period="30d" class="active">30 dias</button>
+        <button data-period="month">Mês</button>
+        <button data-period="year">Ano</button>
+        <button data-period="all">Tudo</button>
+      </div>
+      <select class="consumo-select" id="consumoGroupBy" title="Granularidade do gráfico">
+        <option value="day">Por dia</option>
+        <option value="week">Por semana</option>
+        <option value="month">Por mês</option>
+      </select>
+      <span class="badge-count" id="consumoMeta">—</span>
+      <button class="btn-refresh" id="btnRefreshConsumo">
+        <span class="refresh-icon">↻</span>
+        <span>Atualizar</span>
+      </button>
+    </div>
+
+    <!-- ─── Cards de totais (R$ destaque, USD secundário) ─── -->
+    <div class="consumo-stats" id="consumoStats"></div>
+
+    <!-- ─── Comparativo dia/semana/mês ─── -->
+    <div class="consumo-compare" id="consumoCompare"></div>
+
+    <!-- ─── Gráfico timeline (R$ por dia/semana/mês) ─── -->
+    <div class="usage-card">
+      <h3 class="usage-card__title">📈 Custo no tempo (R$)</h3>
+      <div class="usage-chart-wrap"><canvas id="consumoChart"></canvas></div>
+    </div>
+
+    <!-- ─── Por agente / sub-agente (KEEP) ─── -->
+    <div class="usage-card">
+      <h3 class="usage-card__title">🤖 Por agente / sub-agente</h3>
+      <p class="consumo-card-hint">Soma das ações em Outros Custos + custos por skill registrados no card do agente. Clique no nome pra abrir o detalhamento.</p>
+      <div class="usage-table-wrap">
+        <table class="usage-table" id="consumoAgentTable">
+          <thead>
+            <tr>
+              <th>Agente</th>
+              <th>Ações</th>
+              <th>Tokens</th>
+              <th>Custo R$</th>
+              <th>Custo US$</th>
+              <th>% do total</th>
+              <th>Custo médio</th>
+              <th>Última</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── Grid 2x: Por área/tag + Por modelo ─── -->
+    <div class="usage-grid-2">
+      <div class="usage-card">
+        <h3 class="usage-card__title">🏷️ Por área / tag</h3>
+        <p class="consumo-card-hint">Tags auto-classificadas (tráfego, design, copy, dev…) ou definidas manualmente.</p>
+        <div class="usage-table-wrap">
+          <table class="usage-table" id="consumoTagTable">
+            <thead>
+              <tr>
+                <th>Área / tag</th>
+                <th>Ações</th>
+                <th>Tokens</th>
+                <th>Custo R$</th>
+                <th>Custo US$</th>
+                <th>%</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="usage-card">
+        <h3 class="usage-card__title">🧠 Por modelo</h3>
+        <p class="consumo-card-hint">Comparação entre opus/sonnet/haiku/gpt etc. usados nas ações do período.</p>
+        <div class="usage-table-wrap">
+          <table class="usage-table" id="consumoModelTable">
+            <thead>
+              <tr>
+                <th>Modelo</th>
+                <th>Ações</th>
+                <th>Tokens</th>
+                <th>Custo R$</th>
+                <th>Custo US$</th>
+                <th>%</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Por skill (vinculada via aba Agentes / Outros Custos) ─── -->
+    <div class="usage-card">
+      <h3 class="usage-card__title">⚡ Por skill</h3>
+      <p class="consumo-card-hint">Custo agregado por skill — vem de <strong>Outros Custos</strong> (linhas com fluxo vinculado) + estimativa por tokens registrados no card do agente.</p>
+      <div class="usage-table-wrap">
+        <table class="usage-table" id="consumoSkillTable">
+          <thead>
+            <tr>
+              <th>Skill</th>
+              <th>Agente</th>
+              <th>Ações</th>
+              <th>Tokens</th>
+              <th>Custo R$</th>
+              <th>Custo US$</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── Top N ações mais caras ─── -->
+    <div class="usage-card">
+      <h3 class="usage-card__title">🔥 Top 20 ações mais caras (R$) — onde cortar gordura</h3>
+      <p class="consumo-card-hint">As ações individuais com maior custo no período. Clique em "ver" pra abrir o detalhe.</p>
+      <div class="usage-table-wrap">
+        <table class="usage-table" id="consumoTopTable">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Agente</th>
+              <th>Tag</th>
+              <th>Descrição</th>
+              <th>Modelo</th>
+              <th>Tokens</th>
+              <th>Custo R$</th>
+              <th>Custo US$</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── Por dia (planilha detalhada) ─── -->
+    <div class="usage-card">
+      <h3 class="usage-card__title">📅 Detalhamento por dia</h3>
+      <p class="consumo-card-hint">Cada linha = um dia. Ideal pra exportar e analisar tendência.</p>
+      <div class="usage-table-wrap">
+        <table class="usage-table" id="consumoDayTable">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Dia semana</th>
+              <th>Ações</th>
+              <th>Tokens</th>
+              <th>Custo R$</th>
+              <th>Custo US$</th>
+              <th>Agentes ativos</th>
+              <th>Modelos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="usage-disclaimer">💡 Custos calculados a partir de <strong>Outros Custos</strong> (linhas com agente + descrição + modelo + tokens) e <strong>tokens por skill</strong> registrados nos cards da aba Agentes. Atualize o pricing com o botão ↻ pra puxar últimas cotações OpenRouter + USD/BRL.</p>
+    </div> <!-- /#consumoGeralView -->
+  </section>
+
+  <!-- ─── ABA: SKILLS ──────────────────────────── -->
+  <section id="tab-banco" class="tab-content">
+    <div class="flow-header">
+      <h2>⚡ Skills</h2>
+      <p>Todas as skills da pasta <code>.claude/skills</code> em formato planilha. Use o ↻ Refresh quando estiver com o site aberto localmente para sincronizar com o disco — os dados ficam gravados no Firebase para acesso online.</p>
+    </div>
+
+    <div class="skills-toolbar">
+      <div class="search-box" style="flex:1;min-width:280px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="skillsSearch" placeholder="Buscar por nome, descrição, trigger ou nota...">
+      </div>
+
+      <select class="filter-select" id="skillsFilterOwner">
+        <option value="todos">Todos os agentes</option>
+      </select>
+
+      <select class="filter-select" id="skillsFilterMode">
+        <option value="todos">Modo: todos</option>
+        <option value="AUTO">AUTO</option>
+        <option value="Manual">Manual</option>
+        <option value="—">Sem modo</option>
+      </select>
+
+      <span class="badge-count" id="skillsCountBadge">0 skills</span>
+
+      <button class="btn-refresh" id="btnRefreshSkills" title="Sincronizar com .claude/skills local (precisa do serve.py rodando)">
+        <span class="refresh-icon">↻</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <div class="skills-meta" id="skillsMetaInfo">Carregando...</div>
+
+    <div class="skills-table-wrap">
+      <table class="skills-table">
+        <thead>
+          <tr>
+            <th data-sort="id">Skill ↕</th>
+            <th data-sort="purpose">Para que serve ↕</th>
+            <th data-sort="owner">Agente ↕</th>
+            <th>Triggers (como disparar)</th>
+            <th data-sort="mode">Modo ↕</th>
+            <th data-sort="created_at">Criada ↕</th>
+            <th data-sort="modified_at" class="sorted" data-dir="desc">Modificada ↕</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="skillsTbody">
+          <!-- Renderizado por JS -->
+        </tbody>
+      </table>
+
+      <div class="empty-state" id="skillsEmpty" style="display:none">
+        <div class="empty-icon">🗄️</div>
+        <p>Nenhuma skill encontrada com esses filtros.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: TO-DO ───────────────────────────────────── -->
+  <section id="tab-todo" class="tab-content">
+    <div class="flow-header">
+      <h2>✅ To-do · Demandas pendentes do time</h2>
+      <p>Planilha tipo Notion com todas as pendências de skills, automações, ajustes e tarefas de cada agente. Salva direto no Firebase. Clique em <strong>+ Nova demanda</strong> pra adicionar, ou em <strong>Abrir</strong> pra editar a página completa.</p>
+    </div>
+
+    <div class="todo-toolbar">
+      <button class="btn-save" id="todoAdd">+ Nova demanda</button>
+
+      <div class="search-box" style="flex:1;min-width:240px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="todoSearch" placeholder="Buscar por demanda, agente ou nota...">
+      </div>
+
+      <div id="todoFilterAgenteWrap" class="todo-filter-pick"></div>
+
+      <select class="filter-select" id="todoFilterStatus">
+        <option value="todos">Todos os status</option>
+        <option value="nao_iniciado">⚪ Não iniciado</option>
+        <option value="em_andamento">🟡 Em andamento</option>
+        <option value="concluido">🟢 Concluído</option>
+        <option value="pausado">⏸️ Pausado</option>
+      </select>
+
+      <select class="filter-select" id="todoFilterTag">
+        <option value="todas">Todas as áreas</option>
+        <option value="lideranca">Liderança</option>
+        <option value="marketing-conteudo">Marketing &amp; Conteúdo</option>
+        <option value="trafego-crm">Tráfego &amp; CRM</option>
+        <option value="ti-estrutura">TI &amp; Estrutura</option>
+        <option value="dados-financeiro">Dados &amp; Financeiro</option>
+        <option value="apresentacoes">Apresentações</option>
+      </select>
+
+      <span class="badge-count" id="todoBadgeCount">0 demandas</span>
+    </div>
+
+    <div class="todo-table-wrap">
+      <table class="todo-table">
+        <thead>
+          <tr>
+            <th class="todo-th-agente">Agente</th>
+            <th class="todo-th-demanda">Demanda</th>
+            <th class="todo-th-status">Status</th>
+            <th class="todo-th-tag">Tag</th>
+            <th class="todo-th-prazo">Prazo</th>
+            <th class="todo-th-notas">Notas</th>
+            <th class="todo-th-criado">Criado em</th>
+            <th class="todo-th-acoes"></th>
+          </tr>
+        </thead>
+        <tbody id="todoTbody">
+          <!-- Renderizado por JS -->
+        </tbody>
+      </table>
+
+      <div class="empty-state" id="todoEmpty" style="display:none">
+        <div class="empty-icon">✅</div>
+        <p>Nenhuma demanda ainda. Clique em <strong>+ Nova demanda</strong> pra começar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: LOG ─────────────────────────────────────── -->
+  <section id="tab-log" class="tab-content">
+    <div class="flow-header">
+      <h2>📜 Log · Tudo que mexeu em <code>clientes_convidados/</code></h2>
+      <p>Lista todos os arquivos da pasta principal em ordem de modificação (mais recente primeiro). Mostra <strong>NOVO</strong> / <strong>MODIFICADO</strong> comparando com a última varredura. Skills e agentes têm botão <strong>Editar</strong>; o resto, <strong>Abrir local</strong> ou <strong>Ver no Finder</strong>.</p>
+    </div>
+
+    <div class="log-toolbar">
+      <div class="search-box" style="flex:1;min-width:280px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="logSearch" placeholder="Buscar por nome, caminho ou cliente...">
+      </div>
+
+      <select class="filter-select" id="logFilterChange">
+        <option value="todos">Tudo</option>
+        <option value="novos">🟢 Só novos</option>
+        <option value="modificados">🟡 Só modificados</option>
+        <option value="recentes">🔥 Últimas 24h</option>
+        <option value="semana">📅 Últimos 7 dias</option>
+      </select>
+
+      <select class="filter-select" id="logFilterCategory">
+        <option value="todos">Todos os tipos</option>
+        <option value="texto">📄 Texto (md, txt)</option>
+        <option value="dados">🗂️ Dados (json, yml)</option>
+        <option value="codigo">💻 Código</option>
+        <option value="pdf">📕 PDF</option>
+        <option value="imagem">🖼️ Imagem</option>
+        <option value="video">🎬 Vídeo</option>
+        <option value="audio">🎙️ Áudio</option>
+        <option value="planilha">📊 Planilha</option>
+        <option value="apresentacao">📽️ Apresentação</option>
+        <option value="doc">📝 Documento</option>
+        <option value="arquivo">🗜️ Compactado</option>
+        <option value="outros">❔ Outros</option>
+      </select>
+
+      <select class="filter-select" id="logFilterClient">
+        <option value="todos">Todos os clientes</option>
+      </select>
+
+      <span class="badge-count" id="logBadgeCount">— arquivos</span>
+
+      <button class="btn-refresh" id="btnRefreshLog" title="Re-escanear toda a pasta clientes_convidados/ (precisa do serve.py rodando)">
+        <span class="refresh-icon">↻</span>
+        <span>Atualizar tudo</span>
+      </button>
+    </div>
+
+    <div class="log-stats" id="logStats">Carregando…</div>
+
+    <div class="log-table-wrap">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th class="log-th-status">Status</th>
+            <th class="log-th-name">Arquivo</th>
+            <th class="log-th-tag">Tipo</th>
+            <th class="log-th-client">Cliente</th>
+            <th class="log-th-path">Local</th>
+            <th class="log-th-size">Tamanho</th>
+            <th class="log-th-date">Modificado</th>
+            <th class="log-th-acoes">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="logTbody">
+          <!-- Renderizado por log.js -->
+        </tbody>
+      </table>
+
+      <div class="empty-state" id="logEmpty" style="display:none">
+        <div class="empty-icon">📜</div>
+        <p>Nenhum arquivo encontrado com esses filtros.</p>
+      </div>
+    </div>
+
+    <div class="log-pagination" id="logPagination"></div>
+
+    <div class="log-footnote" id="logFootnote">
+      🟢 NOVO = não estava na varredura anterior · 🟡 MODIFICADO = mtime ou tamanho mudou desde a última varredura · ⚪ Sem badge = inalterado.
+    </div>
+  </section>
+
+  <!-- ─── ABA: API PRICING ────────────────────────────── -->
+  <section id="tab-pricing" class="tab-content">
+    <div class="flow-header">
+      <h2>💰 API Pricing — OpenRouter</h2>
+      <p>Todos os modelos de IA disponíveis via <a href="https://openrouter.ai" target="_blank" style="color:var(--muted);text-decoration:underline">OpenRouter</a> com preços em tempo real. Dados atualizados a cada carregamento da aba. Clique nos cabeçalhos para ordenar.</p>
+    </div>
+
+    <div class="skills-toolbar">
+      <div class="search-box" style="flex:1;min-width:280px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="pricingSearch" placeholder="Buscar por modelo, provedor ou categoria...">
+      </div>
+
+      <select class="filter-select" id="pricingFilterProvider">
+        <option value="todos">Todos os provedores</option>
+      </select>
+
+      <select class="filter-select" id="pricingFilterTier">
+        <option value="todos">Todas as faixas</option>
+        <option value="gratis">🟢 Grátis</option>
+        <option value="budget">🟡 Budget (&lt;$1/1M)</option>
+        <option value="mid">🟠 Mid ($1–$5/1M)</option>
+        <option value="premium">🔴 Premium ($5–$15/1M)</option>
+        <option value="top">⚫ Top (&gt;$15/1M)</option>
+      </select>
+
+      <select class="filter-select" id="pricingFilterModality">
+        <option value="todos">Todas as modalidades</option>
+        <option value="text">💬 Texto</option>
+        <option value="image">🖼️ Imagem</option>
+        <option value="audio">🎧 Áudio</option>
+      </select>
+
+      <span class="badge-count" id="pricingCountBadge">— modelos</span>
+
+      <button class="btn-refresh" id="btnRefreshPricing" title="Recarregar modelos da API OpenRouter">
+        <span class="refresh-icon">↻</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <div class="skills-meta" id="pricingMetaInfo">Carregando modelos...</div>
+
+    <div class="skills-table-wrap">
+      <table class="skills-table" id="pricingTable">
+        <thead>
+          <tr>
+            <th data-sort="provider" class="pricing-th-provider">Provedor ↕</th>
+            <th data-sort="name" class="pricing-th-model">Modelo ↕</th>
+            <th class="pricing-th-uso">Melhor uso</th>
+            <th data-sort="context" class="pricing-th-ctx">Contexto ↕</th>
+            <th data-sort="input" class="sorted pricing-th-input">Input /1M ↕</th>
+            <th id="pricingThInputBrl" class="pricing-th-brl pricing-th-input">R$ Input /1M ↕</th>
+            <th data-sort="output" class="pricing-th-output">Output /1M ↕</th>
+            <th id="pricingThOutputBrl" class="pricing-th-brl pricing-th-output">R$ Output /1M ↕</th>
+            <th class="pricing-th-tier">Faixa</th>
+            <th class="pricing-th-id">ID do modelo</th>
+          </tr>
+        </thead>
+        <tbody id="pricingTbody">
+          <!-- Renderizado por pricing.js -->
+        </tbody>
+      </table>
+
+      <div class="empty-state" id="pricingEmpty" style="display:none">
+        <div class="empty-icon">💰</div>
+        <p>Nenhum modelo encontrado com esses filtros.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABA: OUTROS CUSTOS ────────────────────────── -->
+  <section id="tab-outros-custos" class="tab-content">
+    <div class="flow-header">
+      <h2>🧮 Outros Custos — Calculadora de API</h2>
+      <p>Calcule o custo de mensagens e ações esporádicas. Escolha o agente, informe os tokens consumidos e o modelo — o valor em $ e R$ é calculado automaticamente com a cotação atual do OpenRouter.</p>
+    </div>
+
+    <div class="oc-toolbar">
+      <button class="btn-save" id="oc-add-btn">+ Nova linha</button>
+      <span class="oc-pricing-status" id="oc-pricing-status">Aguardando ativação…</span>
+      <span class="badge-count" id="oc-total">—</span>
+      <span class="oc-sync-status" id="oc-sync-status" title="Backup automático em arquivo (30 versões mantidas)">💾 —</span>
+      <button class="btn-refresh" id="oc-refresh-btn" title="Atualizar cotação e lista de modelos">
+        <span class="refresh-icon">↻</span>
+        <span>Atualizar cotação</span>
+      </button>
+    </div>
+
+    <div class="oc-table-wrap">
+      <table class="oc-table">
+        <thead>
+          <tr>
+            <th class="oc-th-date">Criado em</th>
+            <th class="oc-th-agent">Agente</th>
+            <th class="oc-th-tag">Categoria</th>
+            <th class="oc-th-desc">Descrição</th>
+            <th class="oc-th-tokens">Tokens</th>
+            <th class="oc-th-ctx" title="Contexto acumulado da sessão (tokens)">Ctx</th>
+            <th class="oc-th-msgs" title="Número de turnos na conversa">Msgs</th>
+            <th class="oc-th-model">Modelo</th>
+            <th class="oc-th-usd">Valor $</th>
+            <th class="oc-th-brl">Valor R$</th>
+            <th class="oc-th-flow">Fluxo</th>
+            <th class="oc-th-del"></th>
+          </tr>
+        </thead>
+        <tbody id="oc-tbody"></tbody>
+      </table>
+
+      <div class="empty-state" id="oc-empty" style="display:none">
+        <div class="empty-icon">🧮</div>
+        <p>Nenhuma linha. Clique em <strong>+ Nova linha</strong> para começar.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FLOW TEMPLATES MODAL ═══════════════════════════ -->
+<div class="modal-overlay" id="flowTemplatesOverlay">
+  <div class="modal flow-templates-modal">
+    <div class="flow-templates-modal__header">
+      <div>
+        <h3>📦 Instalar templates de fluxos</h3>
+        <p>Marque o que você quer trazer pra sua aba. Pastas e fluxos com mesmo id não são duplicados — pode rodar quantas vezes quiser sem medo.</p>
+      </div>
+      <button class="modal__close" id="flowTemplatesClose" type="button">✕</button>
+    </div>
+    <div class="flow-templates-modal__body">
+      <div class="flow-templates-modal__col">
+        <div class="flow-templates-modal__col-head">
+          <h4>🟦 Setores <span>(pastas vazias)</span></h4>
+          <button class="link-btn" data-tpl-toggle="setores" type="button">marcar todos</button>
+        </div>
+        <div class="flow-templates-modal__list" id="tplSetoresList"></div>
+      </div>
+      <div class="flow-templates-modal__col">
+        <div class="flow-templates-modal__col-head">
+          <h4>🟩 Processos <span>(com fluxo de exemplo)</span></h4>
+          <button class="link-btn" data-tpl-toggle="processos" type="button">marcar todos</button>
+        </div>
+        <div class="flow-templates-modal__list" id="tplProcessosList"></div>
+      </div>
+    </div>
+    <div class="flow-templates-modal__footer">
+      <span class="flow-templates-modal__hint" id="flowTemplatesHint">— marque o que instalar</span>
+      <div>
+        <button class="btn-cancel" id="flowTemplatesCancel" type="button">Cancelar</button>
+        <button class="btn-save" id="flowTemplatesInstall" type="button">📦 Instalar selecionados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOLDER EDITOR MODAL ════════════════════════════ -->
+<div class="modal-overlay" id="folderEditorOverlay">
+  <div class="modal folder-editor-modal">
+    <div class="folder-editor-modal__header">
+      <h3 id="folderEditorTitle">Nova pasta</h3>
+      <button class="modal__close" id="folderEditorClose" type="button">✕</button>
+    </div>
+    <div class="folder-editor-modal__body">
+      <label class="folder-editor-field">
+        <span>Nome</span>
+        <input type="text" class="form-input" id="folderEditorName" placeholder="Ex.: Marketing & Conteúdo" maxlength="60">
+      </label>
+      <div class="folder-editor-field">
+        <span>Ícone</span>
+        <div class="folder-editor-icons" id="folderEditorIcons"></div>
+        <input type="text" class="form-input folder-editor-icon-input" id="folderEditorIcon" maxlength="4" placeholder="emoji custom">
+      </div>
+      <div class="folder-editor-field">
+        <span>Cor</span>
+        <div class="folder-editor-colors" id="folderEditorColors"></div>
+      </div>
+      <label class="folder-editor-field">
+        <span>Tipo</span>
+        <select class="filter-select" id="folderEditorKind">
+          <option value="custom">Customizada</option>
+          <option value="setor">🟦 Setor</option>
+          <option value="processo">🟩 Processo</option>
+        </select>
+      </label>
+      <label class="folder-editor-field">
+        <span>Descrição (opcional)</span>
+        <input type="text" class="form-input" id="folderEditorDesc" placeholder="Ex.: Daniel, Gabriel" maxlength="120">
+      </label>
+    </div>
+    <div class="folder-editor-modal__footer">
+      <button class="btn-cancel folder-editor-modal__delete" id="folderEditorDelete" type="button" hidden>🗑️ Excluir pasta</button>
+      <div>
+        <button class="btn-cancel" id="folderEditorCancel" type="button">Cancelar</button>
+        <button class="btn-save" id="folderEditorSave" type="button">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL — Criação rápida de fluxo (agentes + skills + nota) ═══ -->
+<div class="modal-overlay" id="flowQuickCreateOverlay">
+  <div class="modal flow-quick-modal">
+    <div class="folder-editor-modal__header">
+      <h3>＋ Novo fluxo</h3>
+      <button class="modal__close" id="flowQuickClose" type="button">✕</button>
+    </div>
+    <div class="folder-editor-modal__body">
+      <div class="folder-editor-field">
+        <span>Agentes <em class="quick-hint">clique pra escolher um ou mais</em></span>
+        <div class="quick-agent-grid" id="flowQuickAgents"></div>
+      </div>
+
+      <div class="folder-editor-field">
+        <span>Skills <em class="quick-hint">opcional · pode marcar várias</em></span>
+        <input type="text" class="form-input" id="flowQuickSkillSearch" placeholder="🔎 Buscar skill (id, owner ou descrição)">
+        <div class="quick-skill-list" id="flowQuickSkills"></div>
+      </div>
+
+      <label class="folder-editor-field">
+        <span>Nota / nome do fluxo <em class="quick-hint">o que esse fluxo resolve</em></span>
+        <textarea class="form-textarea" id="flowQuickNote" rows="2" maxlength="240" placeholder="Ex.: Pedro avisa cliente quando o post da Mia for aprovado"></textarea>
+      </label>
+    </div>
+    <div class="folder-editor-modal__footer">
+      <div></div>
+      <div>
+        <button class="btn-cancel" id="flowQuickCancel" type="button">Cancelar</button>
+        <button class="btn-save" id="flowQuickSave" type="button">＋ Criar fluxo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TODO MODAL — Página completa de uma demanda ═════ -->
+<div class="modal-overlay" id="todoModalOverlay">
+  <div class="modal todo-modal">
+    <div class="todo-modal__header">
+      <div class="todo-modal__title-row">
+        <input type="text" class="todo-modal__title" id="todoModalTitle" placeholder="Título da demanda...">
+        <button class="modal__close" id="todoModalClose" title="Fechar">✕</button>
+      </div>
+      <div class="todo-modal__meta">
+        <label class="todo-meta-field">
+          <span>Agente</span>
+          <div id="todoModalAgenteWrap" class="todo-meta-field__pick"></div>
+        </label>
+        <label class="todo-meta-field">
+          <span>Status</span>
+          <select id="todoModalStatus">
+            <option value="nao_iniciado">⚪ Não iniciado</option>
+            <option value="em_andamento">🟡 Em andamento</option>
+            <option value="concluido">🟢 Concluído</option>
+            <option value="pausado">⏸️ Pausado</option>
+          </select>
+        </label>
+        <label class="todo-meta-field">
+          <span>Tag</span>
+          <div id="todoModalTagWrap" class="todo-meta-field__tag"></div>
+        </label>
+        <label class="todo-meta-field">
+          <span>Prazo</span>
+          <input type="date" id="todoModalPrazo">
+        </label>
+      </div>
+    </div>
+
+    <div class="todo-modal__formatbar" id="todoModalFormatbar">
+      <button type="button" data-fmt="h1" title="Título 1">H1</button>
+      <button type="button" data-fmt="h2" title="Título 2">H2</button>
+      <button type="button" data-fmt="h3" title="Título 3">H3</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="bold" title="Negrito (Cmd+B)"><b>B</b></button>
+      <button type="button" data-fmt="italic" title="Itálico (Cmd+I)"><i>I</i></button>
+      <button type="button" data-fmt="strike" title="Tachado"><s>S</s></button>
+      <button type="button" data-fmt="code" title="Código inline">{ }</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="ul" title="Lista">• Lista</button>
+      <button type="button" data-fmt="ol" title="Lista numerada">1. Num</button>
+      <button type="button" data-fmt="quote" title="Citação">❝</button>
+      <button type="button" data-fmt="hr" title="Linha horizontal">—</button>
+      <button type="button" data-fmt="link" title="Link (Cmd+K)">🔗</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="paragraph" title="Texto normal">¶</button>
+    </div>
+
+    <div class="todo-modal__body">
+      <label class="todo-section-label">Descrição completa</label>
+      <div id="todoModalConteudo" class="todo-modal__content markdown-body" contenteditable="true" spellcheck="false" data-placeholder="Detalhe a demanda — passos, contexto, links de referência..."></div>
+
+      <label class="todo-section-label">Notas rápidas</label>
+      <textarea id="todoModalNotas" class="todo-modal__notas" placeholder="Notas curtas, lembretes, pendências..."></textarea>
+    </div>
+
+    <div class="todo-modal__footer">
+      <span class="todo-modal__hint" id="todoModalHint">Cmd+S salva · Esc fecha</span>
+      <div class="todo-modal__actions">
+        <button class="btn-cancel" id="todoModalDelete">🗑️ Excluir</button>
+        <button class="btn-save" id="todoModalSave">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AGENT PICKER POPOVER ═════════════════════════════ -->
+<div class="agent-picker-popover" id="agentPickerPopover" hidden>
+  <div class="agent-picker-popover__inner">
+    <input type="search" class="agent-picker-popover__search" id="agentPickerSearch" placeholder="🔎 Buscar agente...">
+    <div class="agent-picker-popover__list" id="agentPickerList"></div>
+  </div>
+</div>
+
+<!-- ═══ FLOW MODAL ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="flowModalOverlay">
+  <div class="modal flow-modal">
+    <div class="flow-modal__header" id="flowModalHeader"></div>
+
+    <!-- Editor do .md do agente (topo, igual skill-editor) -->
+    <div class="agent-editor" id="agentEditorWrap">
+      <div class="agent-editor__head">
+        <div class="agent-editor__title">
+          <div class="agent-editor__filename" id="agentEditorFilename">arquivo.md</div>
+          <div class="agent-editor__path" id="agentEditorPath">.claude/agents/</div>
+        </div>
+        <div class="agent-editor__tabs">
+          <button class="agent-editor__tab active" data-mode="preview">👁️ Visualizar</button>
+          <button class="agent-editor__tab" data-mode="edit">✏️ Editar</button>
+        </div>
+      </div>
+
+      <div class="agent-editor__formatbar" id="agentEditorFormatbar">
+        <button type="button" data-fmt="h1" title="Título 1">H1</button>
+        <button type="button" data-fmt="h2" title="Título 2">H2</button>
+        <button type="button" data-fmt="h3" title="Título 3">H3</button>
+        <span class="formatbar__sep"></span>
+        <button type="button" data-fmt="bold" title="Negrito (Cmd+B)"><b>B</b></button>
+        <button type="button" data-fmt="italic" title="Itálico (Cmd+I)"><i>I</i></button>
+        <button type="button" data-fmt="strike" title="Tachado"><s>S</s></button>
+        <button type="button" data-fmt="code" title="Código inline">{ }</button>
+        <span class="formatbar__sep"></span>
+        <button type="button" data-fmt="ul" title="Lista">• Lista</button>
+        <button type="button" data-fmt="ol" title="Lista numerada">1. Num</button>
+        <button type="button" data-fmt="quote" title="Citação">❝</button>
+        <button type="button" data-fmt="hr" title="Linha horizontal">—</button>
+        <button type="button" data-fmt="link" title="Link (Cmd+K)">🔗</button>
+        <span class="formatbar__sep"></span>
+        <button type="button" data-fmt="paragraph" title="Texto normal">¶</button>
+      </div>
+
+      <div class="agent-editor__warning" id="agentEditorWarning" style="display:none">
+        ⚠️ <strong>serve.py local não detectado.</strong> Você pode visualizar, mas para salvar o arquivo precisa rodar <code>python3 serve.py</code> e abrir em <code>http://localhost:8787</code>.
+      </div>
+      <div id="agentEditorPreview" class="agent-editor__preview markdown-body" contenteditable="true" spellcheck="false"></div>
+      <textarea id="agentEditorTextarea" class="agent-editor__textarea" spellcheck="false" style="display:none"></textarea>
+
+      <div class="agent-editor__footer">
+        <span class="agent-editor__hint">Cmd+S salva · Esc fecha</span>
+        <button class="btn-save" id="agentEditorSave">💾 Salvar arquivo</button>
+      </div>
+    </div>
+
+    <div class="flow-modal__body" id="flowModalBody"></div>
+  </div>
+</div>
+
+<!-- ═══ SKILL EDITOR MODAL ═══════════════════════════════ -->
+<div class="modal-overlay" id="skillEditorOverlay">
+  <div class="modal skill-editor">
+    <div class="skill-editor__header">
+      <div class="skill-editor__title">
+        <div class="skill-editor__filename" id="skillEditorFilename">skill.md</div>
+        <div class="skill-editor__meta">
+          <span class="skill-editor__chip" id="skillEditorOwner">—</span>
+          <span class="skill-editor__chip" id="skillEditorMode">—</span>
+          <span class="skill-editor__dates" id="skillEditorDates">—</span>
+        </div>
+        <div class="skill-editor__tok-edit" id="skillTokEdit">
+          <span class="skill-tok-lbl">⚡ tokens</span>
+          <label class="skill-tok-f">↓ <input type="number" id="skillTokMin" class="skill-tok-inp" placeholder="mín" min="0" step="100"></label>
+          <span class="skill-tok-sep">·</span>
+          <span class="skill-tok-avg-wrap">~<span id="skillTokAvg">—</span></span>
+          <span class="skill-tok-sep">·</span>
+          <label class="skill-tok-f">↑ <input type="number" id="skillTokMax" class="skill-tok-inp" placeholder="máx" min="0" step="100"></label>
+          <label class="skill-tok-f skill-tok-f--req">× <input type="number" id="skillTokCount" class="skill-tok-inp" placeholder="req" min="0"></label>
+          <button class="skill-tok-save-btn" id="skillTokSave" type="button" title="Salvar stats de tokens desta skill">💾</button>
+        </div>
+        <div class="skill-editor__readiness" id="skillEditorReadiness" hidden>
+          <label class="sr-check sr-check--claude" id="sedCheckClaude" title="Assinatura Claude">
+            <input type="checkbox" id="sedCbClaude">
+            <span class="sr-check__box"></span>
+            <span class="sr-check__label">Assinatura</span>
+          </label>
+          <label class="sr-check sr-check--wpp" id="sedCheckWpp" title="Ativado no WhatsApp">
+            <input type="checkbox" id="sedCbWpp">
+            <span class="sr-check__box"></span>
+            <span class="sr-check__label">WhatsApp</span>
+          </label>
+          <label class="sr-check sr-check--api" id="sedCheckApi" title="API barata disponível">
+            <input type="checkbox" id="sedCbApi">
+            <span class="sr-check__box"></span>
+            <span class="sr-check__label">API</span>
+          </label>
+          <input type="text" id="sedTokSkill" class="sr-item__tokens sed-tok-skill" inputmode="numeric" placeholder="⚡ tokens skill">
+        </div>
+      </div>
+      <button class="modal__close" id="skillEditorClose">✕</button>
+    </div>
+    <div class="skill-editor__tabs">
+      <button class="skill-editor__tab active" data-mode="preview">👁️ Visualizar</button>
+      <button class="skill-editor__tab" data-mode="edit">✏️ Editar</button>
+    </div>
+
+    <div class="skill-editor__formatbar" id="skillEditorFormatbar">
+      <button type="button" data-fmt="h1" title="Título 1">H1</button>
+      <button type="button" data-fmt="h2" title="Título 2">H2</button>
+      <button type="button" data-fmt="h3" title="Título 3">H3</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="bold" title="Negrito (Cmd+B)"><b>B</b></button>
+      <button type="button" data-fmt="italic" title="Itálico (Cmd+I)"><i>I</i></button>
+      <button type="button" data-fmt="strike" title="Tachado"><s>S</s></button>
+      <button type="button" data-fmt="code" title="Código inline">{ }</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="ul" title="Lista">• Lista</button>
+      <button type="button" data-fmt="ol" title="Lista numerada">1. Num</button>
+      <button type="button" data-fmt="quote" title="Citação">❝</button>
+      <button type="button" data-fmt="hr" title="Linha horizontal">—</button>
+      <button type="button" data-fmt="link" title="Link (Cmd+K)">🔗</button>
+      <span class="formatbar__sep"></span>
+      <button type="button" data-fmt="paragraph" title="Texto normal">¶</button>
+    </div>
+
+    <div class="skill-editor__body">
+      <div class="skill-editor__warning" id="skillEditorWarning" style="display:none">
+        ⚠️ <strong>serve.py local não detectado.</strong> Você pode visualizar, mas para salvar precisa rodar <code>python3 serve.py</code> e abrir em <code>http://localhost:8787</code>.
+      </div>
+      <div id="skillEditorPreview" class="skill-editor__preview markdown-body" contenteditable="true" spellcheck="false"></div>
+      <textarea id="skillEditorTextarea" class="skill-editor__textarea" spellcheck="false" style="display:none"></textarea>
+    </div>
+    <div class="skill-editor__footer">
+      <span class="skill-editor__hint">Cmd+S salva · Esc cancela</span>
+      <div class="skill-editor__actions">
+        <button class="btn-cancel" id="skillEditorCancel">Cancelar</button>
+        <button class="btn-save" id="skillEditorSave">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOKEN EDIT OVERLAY (por agente) ════════════════ -->
+<div class="tok-overlay" id="tokOverlay" hidden>
+  <div class="tok-overlay__box">
+    <div class="tok-overlay__head">
+      <span>⚡ Tokens WPP · <strong id="tokOverlayAgent">—</strong></span>
+      <button class="modal__close" id="tokOverlayClose" type="button">✕</button>
+    </div>
+    <div class="tok-overlay__fields">
+      <label class="tok-overlay__field">
+        <span>↑ Máximo</span>
+        <input type="number" id="tokOvMax" class="form-input" placeholder="ex: 94000" min="0" step="100">
+      </label>
+      <label class="tok-overlay__field">
+        <span>~ Média</span>
+        <input type="number" id="tokOvAvg" class="form-input" placeholder="ex: 60000" min="0" step="100">
+      </label>
+    </div>
+    <div class="tok-overlay__actions">
+      <button class="btn-cancel" id="tokOvCancel" type="button">Cancelar</button>
+      <button class="btn-save" id="tokOvSave" type="button">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ══════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- `defer` é obrigatório: sem ele os 4 scripts bloqueiam o parser do HTML
+     E impedem que os `<script type="module">` abaixo executem; uma CDN lenta
+     ou um 404 (caso do @joplin/turndown-plugin-gfm@1.0.61 — versão removida do npm)
+     mantém a aba travada na splash com só o header visível.
+     `@guyplusplus/turndown-plugin-gfm@1.0.7` é o fork mantido equivalente. -->
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/turndown@7.2.0/dist/turndown.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@guyplusplus/turndown-plugin-gfm@1.0.7/dist/turndown-plugin-gfm.js"></script>
+<script type="module" src="agents.js"></script>
+<script type="module" src="flows.js"></script>
+<script type="module" src="cerebro.js"></script>
+<script type="module" src="cerebro-3d.js"></script>
+<script type="module" src="conexoes.js"></script>
+<script type="module" src="todo.js"></script>
+<script type="module" src="log.js"></script>
+<script type="module" src="conhecimento.js"></script>
+<script type="module" src="pricing.js"></script>
+<script type="module" src="outros-custos.js?v=20260517-1155"></script>
+<script type="module" src="consumo.js"></script>
+<script type="module" src="consumo-api.js"></script>
+
+<style>
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+</style>
+</body>
+</html>
