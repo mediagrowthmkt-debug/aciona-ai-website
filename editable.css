@@ -44,7 +44,7 @@
 
 @media (min-width: 721px) {
   .hero-slide h1 {
-    font-size: 65px;
+    font-size: 58px;
   }
 }
 
@@ -73,5 +73,5 @@
 /* Use este bloco para ajustes temporários rápidos pela extensão.
    Exemplo:
    .slide { min-height: 820px; }
-   .hero-slide h1 { font-size: 62px; }
+   .hero-slide h1 { font-size: 56px; }
 */

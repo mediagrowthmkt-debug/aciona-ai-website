@@ -72,11 +72,12 @@ a {
 }
 
 .eyebrow {
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   color: var(--orange);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 900;
   text-transform: uppercase;
+  letter-spacing: .04em;
 }
 
 h1,
@@ -88,8 +89,8 @@ p {
 
 h1 {
   margin-bottom: 20px;
-  max-width: 780px;
-  font-size: clamp(40px, 5vw, 65px);
+  max-width: 740px;
+  font-size: clamp(36px, 4.6vw, 60px);
   line-height: 1;
   font-weight: 900;
   overflow-wrap: break-word;
@@ -97,8 +98,8 @@ h1 {
 
 h2 {
   margin-bottom: 16px;
-  max-width: 880px;
-  font-size: clamp(30px, 3.8vw, 52px);
+  max-width: 820px;
+  font-size: clamp(28px, 3.2vw, 44px);
   line-height: 1.04;
   font-weight: 900;
 }
@@ -190,12 +191,6 @@ p {
   font-size: 19px;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
 .hero-metrics {
   position: absolute;
   z-index: 3;
@@ -258,6 +253,7 @@ p {
   background: #fff;
   border-radius: var(--radius);
   box-shadow: 0 14px 42px rgba(0, 0, 0, .07);
+  overflow: hidden;
 }
 
 .before-after-board article.active {
@@ -267,9 +263,41 @@ p {
     var(--graphite);
 }
 
+#virada {
+  background:
+    radial-gradient(circle at 84% 15%, rgba(255, 122, 48, .18), transparent 34%),
+    linear-gradient(135deg, #fffaf3 0%, #f7efe5 54%, #ffffff 100%);
+}
+
+#virada::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 122, 48, .10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 122, 48, .10) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 68% 44%, black, transparent 64%);
+  pointer-events: none;
+}
+
+.before-after-visual {
+  height: 150px;
+  margin: -24px -24px 22px;
+  overflow: hidden;
+  background: var(--graphite);
+}
+
+.before-after-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .92;
+}
+
 .before-after-board span {
   color: var(--orange);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -307,42 +335,41 @@ p {
 
 .integration-map {
   position: relative;
-  min-height: 520px;
+  min-height: auto;
+  padding: 28px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background:
-    radial-gradient(circle at center, rgba(255, 122, 48, .20), transparent 26%),
+    radial-gradient(circle at 16% 12%, rgba(255, 122, 48, .18), transparent 28%),
     #fff;
   box-shadow: 0 18px 58px rgba(0, 0, 0, .08);
 }
 
-.integration-map::before,
-.integration-map::after {
+.integration-map::before {
   content: "";
   position: absolute;
-  inset: 64px;
-  border: 1px solid rgba(255, 122, 48, .22);
-  border-radius: 50%;
-}
-
-.integration-map::after {
-  inset: 128px;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 15, 15, .06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 15, 15, .06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  pointer-events: none;
 }
 
 .integration-center {
-  position: absolute;
+  position: relative;
   z-index: 4;
-  top: 50%;
-  left: 50%;
-  width: 180px;
-  height: 180px;
-  transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  padding: 22px;
+  width: min(360px, 100%);
+  min-height: 112px;
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 22px;
   text-align: center;
   color: #fff;
-  border-radius: 50%;
+  border-radius: 18px;
   background: var(--graphite);
   box-shadow: var(--shadow);
 }
@@ -351,54 +378,60 @@ p {
   width: 52px;
 }
 
-.integration-center strong,
 .integration-center span {
   display: block;
-}
-
-.integration-center span {
   color: rgba(255, 255, 255, .68);
   font-size: 12px;
 }
 
+.platform-cloud {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .platform-chip {
-  position: absolute;
+  position: relative;
   z-index: 5;
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 138px;
-  padding: 12px 14px;
+  min-width: 0;
+  min-height: 62px;
+  padding: 11px 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .84);
   box-shadow: 0 14px 42px rgba(0, 0, 0, .08);
   font-weight: 900;
-  animation: floatSoft 4s ease-in-out infinite;
 }
 
-.platform-chip i {
-  width: 32px;
-  height: 32px;
+.platform-chip img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.icon-fallback {
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
+  flex: 0 0 auto;
   color: #fff;
-  font-style: normal;
   font-size: 13px;
+  font-weight: 900;
   border-radius: 8px;
   background: var(--orange);
 }
 
-.google { top: 46px; left: 12%; }
-.sheets { top: 58px; right: 14%; animation-delay: .2s; }
-.whatsapp { top: 42%; left: 5%; animation-delay: .4s; }
-.crm { top: 42%; right: 6%; animation-delay: .6s; }
-.web { bottom: 62px; left: 12%; animation-delay: .8s; }
-.form { bottom: 56px; right: 12%; animation-delay: 1s; }
-.drive { top: 24%; left: 25%; animation-delay: 1.2s; }
-.ads { top: 24%; right: 25%; animation-delay: 1.4s; }
-.mail { bottom: 24%; left: 26%; animation-delay: 1.6s; }
-.pdf { bottom: 24%; right: 25%; animation-delay: 1.8s; }
+.platform-chip span {
+  font-size: 13px;
+  line-height: 1.1;
+}
 
 .visual-automation-grid {
   display: grid;
@@ -429,6 +462,18 @@ p {
   background: var(--cream);
 }
 
+.visual-automation-grid span img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.visual-automation-grid .icon-fallback {
+  color: #fff;
+  background: var(--orange);
+  font-size: 12px;
+}
+
 .visual-automation-grid strong {
   display: block;
   margin-bottom: 8px;
@@ -442,6 +487,9 @@ p {
 
 .delivery-slide {
   align-content: center;
+  background:
+    linear-gradient(rgba(15, 15, 15, .82), rgba(15, 15, 15, .90)),
+    url("assets/showcase/higgsfield-whatsapp-automation-bg.png") center / cover;
 }
 
 .phone-grid {
@@ -471,9 +519,12 @@ p {
   border-radius: 25px;
   background-color: #efe7dc;
   background-image:
+    url("https://cdn.simpleicons.org/whatsapp/25D366"),
     radial-gradient(circle at 12px 12px, rgba(17, 17, 17, .05) 1px, transparent 1px),
     radial-gradient(circle at 36px 34px, rgba(34, 197, 94, .08) 1.5px, transparent 1.5px);
-  background-size: 42px 42px;
+  background-size: 22px 22px, 42px 42px, 42px 42px;
+  background-position: 92% 92%, 0 0, 16px 14px;
+  background-repeat: no-repeat, repeat, repeat;
 }
 
 .phone-top {
@@ -567,7 +618,7 @@ p {
 
 .memory-brain {
   position: relative;
-  min-height: 520px;
+  min-height: 600px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background:
@@ -589,6 +640,14 @@ p {
   inset: 136px;
 }
 
+.memory-brain::before {
+  animation: rotateRing 18s linear infinite;
+}
+
+.memory-brain::after {
+  animation: rotateRing 12s linear infinite reverse;
+}
+
 .memory-core {
   position: absolute;
   z-index: 3;
@@ -608,11 +667,37 @@ p {
   animation: pulseCore 3s ease-in-out infinite;
 }
 
-.memory-core img {
+.brain-core::before,
+.brain-core::after {
+  content: "";
+  position: absolute;
   width: 54px;
+  height: 84px;
+  top: 34px;
+  border: 2px solid rgba(255, 122, 48, .8);
+  background:
+    radial-gradient(circle at 45% 25%, rgba(255, 122, 48, .34), transparent 32%),
+    rgba(255, 122, 48, .08);
+}
+
+.brain-core::before {
+  left: 38px;
+  border-radius: 42px 22px 28px 42px;
+}
+
+.brain-core::after {
+  right: 38px;
+  border-radius: 22px 42px 42px 28px;
+}
+
+.memory-core img {
+  width: 34px;
+  opacity: .32;
 }
 
 .memory-core strong {
+  position: relative;
+  z-index: 2;
   display: block;
 }
 
@@ -636,6 +721,44 @@ p {
 .m7 { top: 210px; left: 7%; }
 .m8 { top: 100px; left: 16%; }
 .m9 { bottom: 204px; left: 38%; }
+
+.memory-actions {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 26px;
+  width: min(820px, calc(100% - 42px));
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.memory-actions article {
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
+}
+
+.memory-actions strong,
+.memory-actions span {
+  display: block;
+}
+
+.memory-actions strong {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.memory-actions span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
 
 .agents-intro,
 .agents-gallery {
@@ -895,6 +1018,11 @@ p {
   50% { box-shadow: 0 24px 80px rgba(0, 0, 0, .22), 0 0 0 22px rgba(255, 122, 48, 0); }
 }
 
+@keyframes rotateRing {
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
+}
+
 @media (max-width: 1040px) {
   .slide {
     min-height: auto;
@@ -917,8 +1045,13 @@ p {
   .visual-automation-grid,
   .phone-grid,
   .flow-board,
-  .agents-grid {
+  .agents-grid,
+  .memory-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-cloud {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .flow-step:not(:last-child)::after {
@@ -971,25 +1104,17 @@ p {
   .integration-map,
   .memory-brain,
   .agent-network {
-    min-height: 620px;
+    min-height: auto;
   }
 
   .platform-chip {
-    min-width: 120px;
     padding: 10px;
     font-size: 13px;
   }
 
-  .google { top: 32px; left: 5%; }
-  .sheets { top: 30px; right: 4%; }
-  .whatsapp { top: 152px; left: 2%; }
-  .crm { top: 152px; right: 2%; }
-  .web { bottom: 36px; left: 5%; }
-  .form { bottom: 36px; right: 4%; }
-  .drive { top: 270px; left: 3%; }
-  .ads { top: 270px; right: 3%; }
-  .mail { bottom: 158px; left: 8%; }
-  .pdf { bottom: 158px; right: 8%; }
+  .platform-cloud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
   .phone {
     min-height: 500px;
@@ -1008,6 +1133,15 @@ p {
   .m7 { top: 210px; left: 1%; }
   .m8 { top: 100px; left: 4%; }
   .m9 { bottom: 226px; left: 22%; }
+
+  .memory-brain {
+    min-height: 760px;
+  }
+
+  .memory-actions {
+    grid-template-columns: 1fr;
+    bottom: 18px;
+  }
 
   .agent-spoke {
     width: 104px;
