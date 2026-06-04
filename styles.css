@@ -768,6 +768,48 @@ p {
   object-fit: cover;
 }
 
+.prompt-slide {
+  grid-template-columns: minmax(0, .84fr) minmax(360px, .62fr);
+  gap: 70px;
+}
+
+.prompt-phone {
+  width: min(440px, 100%);
+  justify-self: end;
+}
+
+.prompt-screen {
+  min-height: 660px;
+}
+
+.prompt-list {
+  display: grid;
+  gap: 9px;
+}
+
+.prompt-bubble {
+  position: relative;
+  margin-left: auto;
+  width: min(100%, 320px);
+  padding: 10px 12px 10px 34px;
+  color: #17340f;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.28;
+  border-radius: 14px 14px 4px 14px;
+  background: #dcf8c6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+}
+
+.prompt-bubble::before {
+  content: "✓";
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  color: #128c7e;
+  font-weight: 900;
+}
+
 .pain-grid,
 .use-case-grid {
   display: grid;
@@ -1225,8 +1267,13 @@ p {
   }
 
   .visual-split,
-  .company-entry {
+  .company-entry,
+  .prompt-slide {
     grid-template-columns: 1fr;
+  }
+
+  .prompt-phone {
+    justify-self: center;
   }
 
   .hero-metrics {
@@ -1320,6 +1367,15 @@ p {
 
   .phone-screen {
     min-height: 476px;
+  }
+
+  .prompt-screen {
+    min-height: auto;
+  }
+
+  .prompt-bubble {
+    width: 100%;
+    font-size: 12.5px;
   }
 
   .m1 { top: 36px; left: 38%; }
